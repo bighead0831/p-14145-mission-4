@@ -36,15 +36,26 @@ public class WiseSayingController {
         }
 
         if(keywordType.isBlank() && keyword.isBlank()) {
-            System.out.println("번호 / 작가 / 명언\n----------------------");
+            showList(keywordType, keyword);
+        } else if(!keywordType.isBlank() && !keyword.isBlank()) {
+            showKeyword(keywordType, keyword);
+            showList(keywordType, keyword);
+        }
+    }
+
+    private void showKeyword(String keywordType, String keyword){
+        System.out.println("----------------------");
+        System.out.println(String.format("검색타입 : %s", keywordType));
+        System.out.println(String.format("검색어 : %s", keyword));
+        System.out.println("----------------------");
+    }
+
+    private void showList(String keywordType, String keyword) {
+        System.out.println("번호 / 작가 / 명언\n----------------------");
+        if(keywordType.isBlank() && keyword.isBlank()) {
             for (WiseSaying ws : wiseSayingService.findForList().reversed())
                 System.out.println(String.format("%d / %s / %s", ws.getId(), ws.getAuthor(), ws.getContent()));
-        } else if(!keywordType.isBlank() && !keyword.isBlank()) {
-            System.out.println("----------------------");
-            System.out.println(String.format("검색타입 : %s", keywordType));
-            System.out.println(String.format("검색어 : %s", keyword));
-            System.out.println("----------------------");
-            System.out.println("번호 / 작가 / 명언\n----------------------");
+        } else {
             for (WiseSaying ws : wiseSayingService.findForList(keywordType, keyword).reversed())
                 System.out.println(String.format("%d / %s / %s", ws.getId(), ws.getAuthor(), ws.getContent()));
         }

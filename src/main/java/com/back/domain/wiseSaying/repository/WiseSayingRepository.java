@@ -24,6 +24,7 @@ public class WiseSayingRepository {
     public List<WiseSaying> findAll() {
         return wiseSayingsList;
     }
+
     public List<WiseSaying> findKeyword(String keywordType, String keyword) {
         List<WiseSaying> resultList = new ArrayList<>();
         for(WiseSaying ws : wiseSayingsList) {
