@@ -45,10 +45,7 @@ public class WiseSayingRepository {
     }
 
     public void remove(int id) {
-        for(WiseSaying ws : wiseSayingsList) {
-            if(ws.getId()==id)
-                wiseSayingsList.remove(ws);
-        }
+        wiseSayingsList.removeIf(ws -> ws.getId() == id);
     }
 
     public WiseSaying getDataById(int id) {
@@ -72,5 +69,12 @@ public class WiseSayingRepository {
                 break;
             }
         }
+    }
+
+    public void setLastId() {
+        lastId = 0;
+    }
+    public int getLastId() {
+        return lastId;
     }
 }

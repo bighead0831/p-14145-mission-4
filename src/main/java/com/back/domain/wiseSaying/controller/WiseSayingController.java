@@ -30,35 +30,17 @@ public class WiseSayingController {
     public void actionList(Rq rq) {
         String keywordType = rq.getParam("keywordType", "");
         String keyword = rq.getParam("keyword", "");
+        int pageNum = rq.getParamInt("page", 1);
+
         if (!keywordType.isBlank() && !keywordType.equals("author") && !keywordType.equals("content")) {
             System.out.println("검색타입은 author 또는 content만 입력가능합니다.");
             return;
         }
 
-        if(keywordType.isBlank() && keyword.isBlank()) {
-            showList(keywordType, keyword);
-        } else if(!keywordType.isBlank() && !keyword.isBlank()) {
+        if(!keywordType.isBlank() && !keyword.isBlank())
             showKeyword(keywordType, keyword);
-            showList(keywordType, keyword);
-        }
-    }
 
-    private void showKeyword(String keywordType, String keyword){
-        System.out.println("----------------------");
-        System.out.println(String.format("검색타입 : %s", keywordType));
-        System.out.println(String.format("검색어 : %s", keyword));
-        System.out.println("----------------------");
-    }
-
-    private void showList(String keywordType, String keyword) {
-        System.out.println("번호 / 작가 / 명언\n----------------------");
-        if(keywordType.isBlank() && keyword.isBlank()) {
-            for (WiseSaying ws : wiseSayingService.findForList().reversed())
-                System.out.println(String.format("%d / %s / %s", ws.getId(), ws.getAuthor(), ws.getContent()));
-        } else {
-            for (WiseSaying ws : wiseSayingService.findForList(keywordType, keyword).reversed())
-                System.out.println(String.format("%d / %s / %s", ws.getId(), ws.getAuthor(), ws.getContent()));
-        }
+        showList(keywordType, keyword, pageNum);
     }
 
     public void actionDelete(Rq rq) {
@@ -96,5 +78,63 @@ public class WiseSayingController {
         System.out.print("작가 : ");
         String author = scanner.nextLine();
         wiseSayingService.modify(id, content, author);
+    }
+
+
+    private void showKeyword(String keywordType, String keyword){
+        System.out.println("----------------------");
+        System.out.println(String.format("검색타입 : %s", keywordType));
+        System.out.println(String.format("검색어 : %s", keyword));
+        System.out.println("----------------------");
+    }
+
+    private void showList(String keywordType, String keyword, int pageNum) {
+        boolean chkCreateSample = false;
+        if(wiseSayingService.findForList().size()==0 && wiseSayingService.getLastId()==0) {
+            chkCreateSample = true;
+            for(int i=1; i<=10; i++)
+                wiseSayingService.write("명언 "+i, "작자미상 "+i);
+        }
+
+        int totalPages = 1;
+        WiseSaying[] pageWiseSaying;
+        int cnt = 0;
+        if (keywordType.isBlank() && keyword.isBlank()) {
+            pageWiseSaying = new WiseSaying[wiseSayingService.findForList().size()];
+            for(WiseSaying ws : wiseSayingService.findForList().reversed())
+                pageWiseSaying[cnt++] = ws;
+        } else {
+            pageWiseSaying = new WiseSaying[wiseSayingService.findForList(keywordType, keyword).size()];
+            for(WiseSaying ws : wiseSayingService.findForList(keywordType, keyword).reversed())
+                pageWiseSaying[cnt++] = ws;
+        }
+
+        totalPages = pageWiseSaying.length/5 + (pageWiseSaying.length%5==0?0:1);
+        if(pageNum>totalPages) {
+            System.out.println("페이지번호가 존재하지 않습니다.");
+            return;
+        }
+
+        System.out.println("번호 / 작가 / 명언\n----------------------");
+        int lastPrintId = 5*(pageNum-1)+5<pageWiseSaying.length?5*(pageNum-1)+5:pageWiseSaying.length;
+        for(int i=5*(pageNum-1); i<lastPrintId; i++) {
+            System.out.println(String.format("%d / %s / %s", pageWiseSaying[i].getId(), pageWiseSaying[i].getAuthor(), pageWiseSaying[i].getContent()));
+        }
+
+        System.out.print("----------------------\n페이지 : ");
+        for(int i=1; i<=totalPages; i++) {
+            if(i==pageNum) System.out.printf("[%d]", i);
+            else System.out.printf("%d", i);
+
+            if(i<totalPages) System.out.print(" / ");
+            else System.out.println("");
+        }
+
+        if(chkCreateSample==true) {
+            for(int id=1; id<=10; id++) {
+                wiseSayingService.delete(id);
+                wiseSayingService.setLastId();
+            }
+        }
     }
 }

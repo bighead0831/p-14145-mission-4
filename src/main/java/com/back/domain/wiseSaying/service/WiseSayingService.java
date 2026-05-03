@@ -43,4 +43,11 @@ public class WiseSayingService {
         WiseSaying ws = new WiseSaying(id, content, author);
         wiseSayingRepository.alter(ws);
     }
+
+    public void setLastId() {
+        wiseSayingRepository.setLastId();
+    }
+    public int getLastId() {
+        return wiseSayingRepository.getLastId();
+    }
 }
